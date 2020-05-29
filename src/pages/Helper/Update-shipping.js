@@ -1,292 +1,447 @@
-import React, { useState } from 'react';
+import React from "react";
+import { makeStyles } from "@material-ui/core/styles";
 import {
-	Grid,
-	TextField,
-	Typography,
-	Box,
-	Button,
-	Divider,
-	InputLabel,
-	InputAdornment,
-	FormControl,
-	Select,
-	FormHelperText
-} from '@material-ui/core';
-import { Link } from 'react-router-dom';
-import ClientStep from '../../components/ClientStep';
-import ROUTE from '../../Routes';
-import Navbar from '../../components/Navbar';
-import moment from 'moment';
-import 'moment/locale/fr';
-moment.locale('fr');
-window.document.title = 'HomeDelivery - Service de livraison';
+  Grid,
+  Typography,
+  Box,
+  Button,
+  ExpansionPanel,
+  ExpansionPanelSummary,
+  ExpansionPanelDetails,
+  Stepper,
+  Step,
+  StepLabel,
+  StepContent,
+  Divider,
+} from "@material-ui/core";
+import { Link } from "react-router-dom";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import Lottie from "react-lottie";
+import Navbar from "../../components/Navbar";
+import moment from "moment";
+import "moment/locale/fr";
+moment.locale("fr");
+window.document.title = "HomeDelivery - Service de livraison";
+
+const shippping = require("../../data/Shipping.json");
+const shippingOptions = {
+  loop: true,
+  autoplay: true,
+  animationData: shippping,
+  rendererSettings: {
+    preserveAspectRatio: "xMidYMid slice",
+  },
+};
+
+const useStyles = makeStyles((theme) => ({
+  heading: {
+    fontSize: theme.typography.pxToRem(15),
+    flexBasis: "33.33%",
+    flexShrink: 0,
+  },
+  secondaryHeading: {
+    fontSize: theme.typography.pxToRem(15),
+    color: theme.palette.text.secondary,
+  },
+  button: {
+    marginTop: theme.spacing(1),
+    marginRight: theme.spacing(1),
+  },
+  actionsContainer: {
+    marginBottom: theme.spacing(2),
+  },
+  resetContainer: {
+    padding: theme.spacing(3),
+  },
+  root: {
+    width: "100%",
+    "& > * + *": {
+      marginTop: theme.spacing(2),
+    },
+  },
+}));
+
+function getSteps() {
+  return [
+    "Prendre en charge la commande",
+    "Se rendre dans le magasin",
+    "Confirmer l'achat et fournir les preuves",
+    "Livraison chez le client",
+  ];
+}
+
+function getStepContent(step) {
+  switch (step) {
+    case 0:
+      return (
+        <Typography>
+          Attention ! Si vous acceptez la livraison vous ne pouvez plus{" "}
+          <strong>revenir en arrière.</strong> <br />
+          Êtes vous sur de vouloir continuer ?
+        </Typography>
+      );
+    case 1:
+      return (
+        <Typography>
+          Êtes vous dans le magasin près du domicile du client ?
+        </Typography>
+      );
+    case 2:
+      return (
+        <>
+          <Typography>
+            Veuillez fournir les preuves d'achat, <br />
+            il vous suffit de <strong>prendre en photo</strong> le{" "}
+            <strong>ticket de caisse</strong> et de le mettre en ligne
+          </Typography>
+          <input
+            accept='image/*'
+            id='contained-button-file'
+            multiple
+            style={{ display: "none" }}
+            type='file'
+          />
+          <label htmlFor='contained-button-file'>
+            <Button
+              component='span'
+              style={{
+                marginTop: 15,
+                marginBottom: 15,
+                backgroundColor: "rgb(70, 176, 74)",
+                color: "white",
+                fontWeight: "bold",
+                borderRadius: 4,
+              }}
+            >
+              <i className='uil uil-upload' />
+              Importer votre ticket
+            </Button>
+          </label>
+        </>
+      );
+    case 3:
+      return (
+        <Typography>
+          Avez-vous livrer le client ? <br /> Si c'est le cas veuillez cliquer
+          sur le bouton "<strong>Finaliser la livraison</strong>"
+        </Typography>
+      );
+    default:
+      return "Étape inconnue";
+  }
+}
 
 export default (props) => {
-	const inputLabel = React.useRef(null);
-	const [ labelWidth, setLabelWidth ] = React.useState(0);
-	React.useEffect(() => {
-		setLabelWidth(inputLabel.current.offsetWidth);
-	}, []);
-	const [ todos, setTodos ] = useState([]);
-	const onlyNumbers = (e) => {
-		e.target.value = e.target.value.replace(/[^0-9]/g, '');
-		console.log(e.target.value);
-		if (e.target.value > 50) {
-			e.target.value = '50';
-		}
-	};
-	const Todo = ({ todo, index, removeTodo }) => {
-		return (
-			<Box display='flex' alignItems='center' style={{ marginTop: 15 }}>
-				<Typography color='textSecondary'>{todo.article}</Typography>
-				<i className='uil uil-times' onClick={() => removeTodo(index)} style={{ cursor: 'pointer' }} />
-			</Box>
-		);
-	};
-	const addTodo = (article) => {
-		const newTodos = [ ...todos, { article } ];
-		console.log(todos);
-		if (todos.length < 10) {
-			setTodos(newTodos);
-		} else {
-			const FormHelperTextTodo = document.querySelector('#FormHelperTextTodo');
-			FormHelperTextTodo.innerHTML = 'Vous avez atteint la limite de 10 articles';
-			FormHelperTextTodo.classList.add('Mui-error');
-			return;
-		}
-	};
-	const removeTodo = (index) => {
-		const newTodos = [ ...todos ];
-		newTodos.splice(index, 1);
-		setTodos(newTodos);
-	};
+  const classes = useStyles();
+  const [expanded, setExpanded] = React.useState(false);
+  const handleChange = (panel) => (event, isExpanded) => {
+    setExpanded(isExpanded ? panel : false);
+  };
+  const handleSubmit = () => {
+    console.log("====== LIST COURSES ======");
+  };
+  const [activeStep, setActiveStep] = React.useState(0);
+  const steps = getSteps();
 
-	const [ values, setValues ] = useState({
-		list: '',
-		annexe: '',
-		price_max: '',
-		payment: ''
-	});
+  const handleNext = () => {
+    setActiveStep((prevActiveStep) => prevActiveStep + 1);
+  };
 
-	const handleChange = (name) => (event) => {
-		setValues({ ...values, [name]: event.target.value });
-	};
-	const handleSubmit = () => {
-		console.log('====== LIST COURSES ======');
-		console.log(values);
-	};
-	console.log(values);
-	const TodoForm = ({ addTodo }) => {
-		const [ value, setValue ] = useState('');
+  const handleBack = () => {
+    setActiveStep((prevActiveStep) => prevActiveStep - 1);
+  };
 
-		const handleTodo = (e) => {
-			e.preventDefault();
-			if (!value) return;
-			addTodo(value);
-			setValue('');
-		};
-		return (
-			<form onSubmit={handleTodo}>
-				<Box display='flex' alignItems='center'>
-					<TextField
-						id='todoTextField'
-						style={{ marginTop: 15 }}
-						label='Articles'
-						fullWidth
-						type='text'
-						variant='outlined'
-						placeholder='Riz, carottes, pommes vertes'
-						value={value}
-						onChange={(e) => setValue(e.target.value)}
-					/>
-					<Button
-						onClick={handleTodo}
-						style={{
-							marginTop: 15,
-							height: '100%',
-							backgroundColor: 'rgb(70, 176, 74)',
-							color: 'white',
-							marginLeft: 3,
-							padding: 11
-						}}
-					>
-						<i className='uil uil-plus' style={{ fontSize: 20 }} />
-					</Button>
-				</Box>
-			</form>
-		);
-	};
-	return (
-		<div>
-			<Grid container>
-				<Grid item xs={12} xl={8} md={8} sm={12}>
-					<Navbar />
-					<Box style={{ padding: 35 }}>
-						<Divider />
-						<Box style={{ marginTop: 15, padding: 25 }}>
-							<Typography variant='h1' style={{ fontWeight: 'bold', fontSize: 25 }}>
-								Liste de course :{' '}
-							</Typography>
-							<TodoForm addTodo={addTodo} onChange={handleChange('list')} />
-							<FormHelperText id='FormHelperTextTodo'>
-								La liste des courses est limitée à 10 articles maximum
-							</FormHelperText>
-							<Typography variant='h1' style={{ fontWeight: 'bold', fontSize: 25, marginTop: 15 }}>
-								Demandes annexes :{' '}
-							</Typography>
-							<TextField
-								style={{ marginTop: 15 }}
-								label='Demande'
-								multiline
-								fullWidth
-								rows='4'
-								variant='outlined'
-								placeholder='Dans le lidl près de chez moi..'
-								value={values.annexe}
-								onChange={handleChange('annexe')}
-							/>
-							<FormHelperText>Mettre texte ici pour expliquer les demandes annexes</FormHelperText>
-							<Typography variant='h1' style={{ fontWeight: 'bold', fontSize: 20, marginTop: 25 }}>
-								Mode de paiement :
-							</Typography>
-							<FormControl fullWidth variant='outlined' style={{ marginTop: 15 }}>
-								<InputLabel ref={inputLabel} htmlFor='select'>
-									Mode de paiement
-								</InputLabel>
-								<Select
-									native
-									labelWidth={labelWidth}
-									value={values.payment}
-									onChange={handleChange('payment')}
-									label='Carte de crédit'
-								>
-									<option aria-label='None' value='' />
-									<option value='Carte de crédit'>Carte de crédit</option>
-									<option value='Espèce'>Espèce</option>
-								</Select>
-							</FormControl>
-							<Box style={{ marginBottom: 25, marginTop: 25 }}>
-								<Box>
-									<Typography
-										variant='h1'
-										style={{ fontWeight: 'bold', fontSize: 20, marginBottom: 15 }}
-									>
-										Prix maximum à ne pas dépasser :
-									</Typography>
-									<TextField
-										variant='outlined'
-										label='Prix'
-										fullWidth
-										onInput={(e) => onlyNumbers(e)}
-										inputProps={{
-											maxLength: 2
-										}}
-										InputProps={{
-											endAdornment: <InputAdornment position='end'>€</InputAdornment>
-										}}
-										value={values.price_max}
-										onChange={handleChange('price_max')}
-									/>
-									<FormHelperText>Le prix maximum fixé est de 50€</FormHelperText>
-								</Box>
-							</Box>
+  return (
+    <div>
+      <Grid container>
+        <Grid item xs={12} xl={8} md={8} sm={12}>
+          <Navbar />
+          <Box style={{ padding: 35 }}>
+            <Box display='flex' alignItems='center'>
+              <Box flexGrow={1} display='flex' alignItems='center'>
+                <Box
+                  display='flex'
+                  alignItems='center'
+                  justifyContent='center'
+                  style={{
+                    height: 120,
+                    width: 120,
+                    backgroundColor: "#18B074",
+                    borderRadius: 10,
+                  }}
+                >
+                  <Lottie options={shippingOptions} height={150} width={150} />
+                </Box>
+                <Box style={{ marginLeft: 25 }}>
+                  <Typography color='textSecondary'>
+                    Annonce n°6543778
+                  </Typography>
+                  <Typography
+                    variant='h1'
+                    style={{ fontWeight: "bold", fontSize: 25 }}
+                  >
+                    Michel PLATINI
+                  </Typography>
+                </Box>
+              </Box>
+              <Box>
+                <a
+                  href='tel:060606060606'
+                  style={{
+                    color: "rgb(70, 176, 74)",
+                    textDecoration: "none",
+                  }}
+                >
+                  Besoin de contacter le client ?
+                </a>
+              </Box>
+            </Box>
+            <Box style={{ marginTop: 15, padding: 25 }}>
+              <ExpansionPanel
+                expanded={expanded === "panel1"}
+                onChange={handleChange("panel1")}
+              >
+                <ExpansionPanelSummary
+                  expandIcon={<ExpandMoreIcon />}
+                  aria-controls='panel1bh-content'
+                  id='panel1bh-header'
+                >
+                  <Typography className={classes.heading}>
+                    Informations à propos de la commande
+                  </Typography>
+                  <Typography className={classes.secondaryHeading}>
+                    Toutes les informations nécessaires au bon déroulement de la
+                    livraison
+                  </Typography>
+                </ExpansionPanelSummary>
+                <ExpansionPanelDetails style={{ display: "block" }}>
+                  <Box style={{ width: "100%" }}>
+                    <Typography style={{ fontWeight: "bold", fontSize: 20 }}>
+                      <i className='uil uil-user-circle' />
+                      Destinatire
+                    </Typography>
+                    <Divider style={{ marginTop: 10, marginBottom: 10 }} />
+                    <Typography>Nom : COULON</Typography>
+                    <Typography>Prénom : Ludovic</Typography>
+                    <Typography>Adresse : 27 rue des pommes</Typography>
+                    <Typography>
+                      Complément d'adresse : Batiment C, porte 313, Étage 4
+                    </Typography>
+                    <Typography>Ville : Paris 11e</Typography>
+                    <Typography>Code postale : 75011</Typography>
+                  </Box>
+                  <Box style={{ width: "100%", marginTop: 25 }}>
+                    <Typography style={{ fontWeight: "bold", fontSize: 20 }}>
+                      <i className='uil uil-calling' />
+                      Contact
+                    </Typography>
+                    <Divider style={{ marginTop: 10, marginBottom: 10 }} />
+                    <Typography>
+                      Mail :{" "}
+                      <a
+                        href='mailto:coulonludovic@gmail.com'
+                        style={{
+                          textDecoration: "none",
+                          color: "rgb(70, 176, 74",
+                        }}
+                      >
+                        coulonludovic@gmail.com
+                      </a>
+                    </Typography>
+                    <Typography>
+                      Numéro de téléphone :{" "}
+                      <a
+                        href='tel:0606060606'
+                        style={{
+                          textDecoration: "none",
+                          color: "rgb(70, 176, 74",
+                        }}
+                      >
+                        0606060606
+                      </a>
+                    </Typography>
+                  </Box>
+                </ExpansionPanelDetails>
+              </ExpansionPanel>
 
-							<Box display='flex' flexDirection='row-reverse'>
-								<Link to={ROUTE.CONFIRM_ANNONCE} style={{ textDecoration: 'none' }}>
-									<Button
-										onClick={handleSubmit}
-										style={{
-											backgroundColor: 'rgb(70, 176, 74)',
-											color: 'white',
-											fontWeight: 'bold',
-											marginTop: 20,
-											padding: 15,
-											borderRadius: 4
-										}}
-									>
-										Continuer <i className='uil uil-arrow-right' />
-									</Button>
-								</Link>
-								<Button
-									style={{
-										color: 'gray',
-										fontWeight: 'bold',
-										marginTop: 20,
-										padding: 15,
-										borderRadius: 0
-									}}
-								>
-									Annuler
-								</Button>
-							</Box>
-						</Box>
-					</Box>
-				</Grid>
-				<Grid item xs={12} xl={4} md={4} sm={12}>
-					<Box
-						style={{
-							position: '-webkit-sticky',
-							position: 'sticky',
-							top: 0,
-							height: '100vh',
-							backgroundColor: '#F3F7F3'
-						}}
-					>
-						<iframe
-							frameborder='0'
-							style={{ width: '100%', border: 0 }}
-							src='https://www.google.com/maps/embed/v1/directions?key=BOPER&origin=Paris+France&destination=Rambouillet+78120&avoid=tolls|highways'
-						/>
-						<Box style={{ padding: 35 }}>
-							<article className='ticket'>
-								<Box className='ticket__wrapper'>
-									<Box className='ticket__header'>
-										<Typography>Numéro de l'annonce 1564564</Typography>
-									</Box>
-								</Box>
-								<div className='ticket__divider' />
-								<Box className='ticket__body'>
-									<Box className='ticket__section'>
-										<Typography>Liste des courses ({todos.length} / 10) :</Typography>
-										{todos.map((todo, index) => (
-											<Todo key={index} index={index} todo={todo} removeTodo={removeTodo} />
-										))}
-									</Box>
-									<Box className='ticket__section'>
-										<Typography>Demandes annexes :</Typography>
-										<Typography color='textSecondary'>{values.annexe}</Typography>
-									</Box>
+              <ExpansionPanel
+                expanded={expanded === "panel3"}
+                onChange={handleChange("panel3")}
+              >
+                <ExpansionPanelSummary
+                  expandIcon={<ExpandMoreIcon />}
+                  aria-controls='panel3bh-content'
+                  id='panel3bh-header'
+                >
+                  <Typography className={classes.heading}>
+                    Liste de courses
+                  </Typography>
+                  <Typography className={classes.secondaryHeading}>
+                    Liste et demande explicites du client
+                  </Typography>
+                </ExpansionPanelSummary>
+                <ExpansionPanelDetails style={{ display: "block" }}>
+                  <Box style={{ width: "100%" }}>
+                    <Typography style={{ fontWeight: "bold", fontSize: 20 }}>
+                      <i className='uil uil-shopping-cart' />
+                      Liste de courses
+                    </Typography>
+                    <Divider style={{ marginTop: 10, marginBottom: 10 }} />
+                    <Typography>Liste complète ici</Typography>
+                  </Box>
+                  <Box style={{ width: "100%", marginTop: 25 }}>
+                    <Typography style={{ fontWeight: "bold", fontSize: 20 }}>
+                      <i className='uil uil-question-circle' /> Demandes annexes
+                    </Typography>
+                    <Divider style={{ marginTop: 10, marginBottom: 10 }} />
+                    <Typography>Liste complète ici</Typography>
+                  </Box>
+                </ExpansionPanelDetails>
+              </ExpansionPanel>
 
-									<Box className='ticket__section'>
-										<Typography>Mode de paiement :</Typography>
-										<Typography color='textSecondary'>{values.payment}</Typography>
-									</Box>
-								</Box>
-								<Box className='ticket__footer '>
-									<Typography style={{ fontWeight: 'bold' }}>Prix maximum :</Typography>
-									<Typography color='textSecondary'>{values.price_max} €</Typography>
-								</Box>
-							</article>
-							<Link to={ROUTE.CONFIRM_ANNONCE} style={{ textDecoration: 'none' }}>
-								<Button
-									onClick={handleSubmit}
-									fullWidth
-									style={{
-										backgroundColor: 'rgb(70, 176, 74)',
-										color: 'white',
-										fontWeight: 'bold',
-										marginTop: 20,
-										padding: 15,
-										borderRadius: 4
-									}}
-								>
-									Continuer <i className='uil uil-arrow-right' />
-								</Button>
-							</Link>
-						</Box>
-					</Box>
-				</Grid>
-			</Grid>
-		</div>
-	);
+              <ExpansionPanel
+                expanded={expanded === "panel4"}
+                onChange={handleChange("panel4")}
+              >
+                <ExpansionPanelSummary
+                  expandIcon={<ExpandMoreIcon />}
+                  aria-controls='panel4bh-content'
+                  id='panel4bh-header'
+                >
+                  <Typography className={classes.heading}>
+                    Étapes de la livraison
+                  </Typography>
+                </ExpansionPanelSummary>
+                <ExpansionPanelDetails>
+                  <Stepper activeStep={activeStep} orientation='vertical'>
+                    {steps.map((label, index) => (
+                      <Step key={label}>
+                        <StepLabel>{label}</StepLabel>
+                        <StepContent>
+                          <Typography>{getStepContent(index)}</Typography>
+                          <div className={classes.actionsContainer}>
+                            <div>
+                              <Button
+                                disabled={activeStep === 0}
+                                onClick={handleBack}
+                                className={classes.button}
+                              >
+                                Annuler
+                              </Button>
+                              <Button
+                                onClick={handleNext}
+                                className={classes.button}
+                                style={{
+                                  backgroundColor: "rgb(70, 176, 74)",
+                                  color: "white",
+                                  fontWeight: "bold",
+                                  borderRadius: 4,
+                                }}
+                              >
+                                {activeStep === steps.length - 1
+                                  ? "Terminer"
+                                  : "Suivant"}
+                              </Button>
+                            </div>
+                          </div>
+                        </StepContent>
+                      </Step>
+                    ))}
+                  </Stepper>
+                </ExpansionPanelDetails>
+              </ExpansionPanel>
+
+              <Box display='flex' flexDirection='row-reverse'>
+                <Link to='#' style={{ textDecoration: "none" }}>
+                  <Button
+                    onClick={handleSubmit}
+                    style={{
+                      backgroundColor: "rgb(70, 176, 74)",
+                      color: "white",
+                      fontWeight: "bold",
+                      marginTop: 20,
+                      padding: 15,
+                      borderRadius: 4,
+                    }}
+                  >
+                    Finaliser la livraison <i className='uil uil-box' />
+                  </Button>
+                </Link>
+                <Button
+                  style={{
+                    color: "gray",
+                    fontWeight: "bold",
+                    marginTop: 20,
+                    padding: 15,
+                    borderRadius: 0,
+                  }}
+                >
+                  Annuler
+                </Button>
+              </Box>
+            </Box>
+          </Box>
+        </Grid>
+        <Grid item xs={12} xl={4} md={4} sm={12}>
+          <Box
+            style={{
+              position: "sticky",
+              top: 0,
+              height: "100vh",
+              backgroundColor: "#F3F7F3",
+            }}
+          >
+            <Box style={{ padding: 35 }}>
+              <article className='ticket'>
+                <Box className='ticket__wrapper'>
+                  <Box className='ticket__header'>
+                    <Typography>
+                      Récapitulatif de la commande du client
+                    </Typography>
+                  </Box>
+                </Box>
+                <div className='ticket__divider' />
+                <Box className='ticket__body'>
+                  <Box className='ticket__section'>
+                    <Typography>Liste des courses (1 / 10) :</Typography>
+                  </Box>
+                  <Box className='ticket__section'>
+                    <Typography>Demandes annexes :</Typography>
+                    <Typography color='textSecondary'></Typography>
+                  </Box>
+
+                  <Box className='ticket__section'>
+                    <Typography>Mode de paiement :</Typography>
+                    <Typography color='textSecondary'></Typography>
+                  </Box>
+                </Box>
+                <Box className='ticket__footer '>
+                  <Typography style={{ fontWeight: "bold" }}>
+                    Prix maximum à respecter :
+                  </Typography>
+                  <Typography color='textSecondary'>€</Typography>
+                </Box>
+              </article>
+              <Link to='#' style={{ textDecoration: "none" }}>
+                <Button
+                  onClick={handleSubmit}
+                  fullWidth
+                  style={{
+                    backgroundColor: "rgb(70, 176, 74)",
+                    color: "white",
+                    fontWeight: "bold",
+                    marginTop: 20,
+                    padding: 15,
+                    borderRadius: 4,
+                  }}
+                >
+                  Finaliser la livraison <i className='uil uil-box' />
+                </Button>
+              </Link>
+            </Box>
+          </Box>
+        </Grid>
+      </Grid>
+    </div>
+  );
 };

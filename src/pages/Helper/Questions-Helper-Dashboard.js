@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import {
   Drawer,
@@ -12,11 +12,11 @@ import {
   Breadcrumbs,
 } from "@material-ui/core";
 import { Link } from "react-router-dom";
+import Questions from "../../components/Questions";
 import NavigateNextIcon from "@material-ui/icons/NavigateNext";
 import ROUTE from "../../Routes";
-import DrawerDashboardClient from "../../components/DrawerDashboardClient";
-import CardHistory from "../../components/CardHistory";
-window.document.title = "HomeDelivery - Historique";
+import DrawerDashboardHelper from "../../components/DrawerDashboardHelper";
+window.document.title = "HomeDelivery - Questions récurrentes";
 
 const drawerWidth = 300;
 
@@ -51,21 +51,14 @@ const useStyles = makeStyles((theme) => ({
   content: {
     flexGrow: 1,
     padding: theme.spacing(8),
-    backgroundColor: "white",
     boxShadow: "-8px 0px 18px 0px rgba(0,0,0,0.05)",
-    zIndex: 2,
     minHeight: "100vh",
+    zIndex: 2,
   },
 }));
 
 export default (props) => {
   const classes = useStyles();
-  const [values, setValues] = useState({
-    input: "",
-  });
-  const handleChange = (name) => (event) => {
-    setValues({ ...values, [name]: event.target.value });
-  };
   return (
     <div className={classes.root}>
       <CssBaseline />
@@ -76,12 +69,9 @@ export default (props) => {
             style={{ fontSize: 25, color: "#82867D" }}
           />
           <InputBase
-            onChange={handleChange("search")}
             className={classes.input}
-            placeholder='Rechercher un livreur près de chez vous'
-            inputProps={{
-              "aria-label": "Rechercher un livreur près de chez vous",
-            }}
+            placeholder='Rechercher une adresse'
+            inputProps={{ "aria-label": "Rechercher une adresse" }}
           />
           <IconButton
             type='submit'
@@ -107,11 +97,11 @@ export default (props) => {
           <img
             src='https://svgur.com/i/Jg4.svg'
             alt='logoHomeDelivery'
-            style={{ marginLeft: 13, marginTop: 13, objectFit: "cover" }}
+            style={{ marginLeft: 13, marginTop: 13 }}
           />
         </Box>
         <Divider />
-        <DrawerDashboardClient />
+        <DrawerDashboardHelper />
       </Drawer>
       <main className={classes.content}>
         <div className={classes.toolbar} />
@@ -120,29 +110,26 @@ export default (props) => {
           aria-label='breadcrumb'
           style={{ marginBottom: 25 }}
         >
-          <Link to={ROUTE.DASHBOARD} style={{ textDecoration: "none" }}>
+          <Link to={ROUTE.DASHBOARD_HELPER} style={{ textDecoration: "none" }}>
             <Typography color='textSecondary'>
               <i className='uil uil-create-dashboard' /> Dashboard
             </Typography>
           </Link>
           <Link style={{ textDecoration: "none" }}>
             <Typography color='textPrimary' style={{ fontWeight: "bold" }}>
-              <i className='uil uil-receipt-alt' /> Historique
+              <i className='uil uil-comment-question' /> Questions récurrentes
             </Typography>
           </Link>
         </Breadcrumbs>
         <Typography variant='h6' component='h1'>
-          <i className='uil uil-receipt-alt' /> Historique de vos annonces
-          postées
+          <i className='uil uil-comment-question' /> Questions récurrentes
         </Typography>
         <Typography color='textSecondary'>
-          Toutes vos annonces que vous avez postées sur la plateforme
-          HomeDelivery.
+          Toutes les questions que les utilisateurs nous ont posées au fil du
+          temps.
         </Typography>
         <Divider style={{ marginTop: 15, marginBottom: 15 }} />
-        <Box style={{ marginTop: 25 }}>
-          <CardHistory />
-        </Box>
+        <Questions />
       </main>
     </div>
   );
